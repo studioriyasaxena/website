@@ -1,11 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/register",
+      "source": "/collect",
       "destination": "/"
     },
     {
-      "source": "/register/",
+      "source": "/collect/",
       "destination": "/"
     }
   ]

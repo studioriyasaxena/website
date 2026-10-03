@@ -21,11 +21,11 @@ ignored in Git because it is generated during deployment.
    `cd frontend && npm install && npm run dev`
 
 The landing page shows the themed registration invitation after three seconds. Its
-`Get first access` button and the `Register` navigation link open the dedicated
-`/register` page. A successful submission sends one email to `OWNER_EMAIL` and a
+`Get first access` button and the `Collect` navigation link open the dedicated
+`/collect` page. A successful submission sends one email to `OWNER_EMAIL` and a
 confirmation email to the registrant. Both emails use `MAIL_FROM` as the sender;
 the registrant email comes from the submitted form and the owner email comes from
 `OWNER_EMAIL`.
 
-To share the registration form directly, use the deployed frontend's `/register`
-route, for example `https://www.riyasaxena.com/register`.
+To share the registration form directly, use the deployed frontend's `/collect`
+route, for example `https://www.riyasaxena.com/collect`.
