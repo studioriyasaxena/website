@@ -21,3 +21,7 @@ ignored in Git because it is generated during deployment.
    `cd frontend && npm install && npm run dev`
 
 The frontend opens the invitation popup on page load. Closing it leaves the `Register` button in the navbar available to reopen the full form. A successful submission sends one email to `OWNER_EMAIL` and a confirmation email to the registrant. Both emails use `MAIL_FROM` as the sender; the registrant email comes from the submitted form and the owner email comes from `OWNER_EMAIL`.
+
+To share the registration form directly, append `#register` to the deployed
+frontend URL, for example `https://www.riyasaxena.com/#register`. This opens
+the form immediately and skips the invitation popup.
