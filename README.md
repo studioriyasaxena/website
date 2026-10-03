@@ -5,6 +5,13 @@ The website is split into two independent applications:
 - `frontend/` contains the Vite-powered gallery website and the registration popup.
 - `backend/` contains the Express registration API and Resend email delivery.
 
+## Deploy the frontend to Vercel
+
+Set the Vercel project **Root Directory** to `frontend`. Vercel will use
+`frontend/index.html` as the source entry point, run `npm run build`, and serve
+the generated `dist/` directory. The `dist/` directory is intentionally
+ignored in Git because it is generated during deployment.
+
 ## Run locally
 
 1. In `backend/`, copy `.env.example` to `.env` and set `RESEND_API_KEY`, `OWNER_EMAIL`, and `MAIL_FROM`. Verify the sender domain in Resend before sending production email.
