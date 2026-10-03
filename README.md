@@ -2,7 +2,7 @@
 
 The website is split into two independent applications:
 
-- `frontend/` contains the Vite-powered gallery website and the registration popup.
+- `frontend/` contains the Vite-powered gallery website and the dedicated registration page.
 - `backend/` contains the Express registration API and Resend email delivery.
 
 ## Deploy the frontend to Vercel
@@ -20,8 +20,12 @@ ignored in Git because it is generated during deployment.
 3. In a second terminal, install and run the frontend:
    `cd frontend && npm install && npm run dev`
 
-The frontend opens the invitation popup on page load. Closing it leaves the `Register` button in the navbar available to reopen the full form. A successful submission sends one email to `OWNER_EMAIL` and a confirmation email to the registrant. Both emails use `MAIL_FROM` as the sender; the registrant email comes from the submitted form and the owner email comes from `OWNER_EMAIL`.
+The landing page shows the themed registration invitation after three seconds. Its
+`Get first access` button and the `Register` navigation link open the dedicated
+`/register` page. A successful submission sends one email to `OWNER_EMAIL` and a
+confirmation email to the registrant. Both emails use `MAIL_FROM` as the sender;
+the registrant email comes from the submitted form and the owner email comes from
+`OWNER_EMAIL`.
 
-To share the registration form directly, append `#register` to the deployed
-frontend URL, for example `https://www.riyasaxena.com/#register`. This opens
-the form immediately and skips the invitation popup.
+To share the registration form directly, use the deployed frontend's `/register`
+route, for example `https://www.riyasaxena.com/register`.
