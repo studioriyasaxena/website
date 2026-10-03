@@ -11,7 +11,8 @@ const allowedOrigins = (
     : [
       'http://localhost:5173',
       'http://localhost:5174',
-      'https://website-navy-pi-99t2ssodtm.vercel.app',
+      'https://website-black-nine-73.vercel.app',
+      'https://www.riyasaxena.com',
     ]
 ).map((origin) => origin.trim()).filter(Boolean);
 
