@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/register",
+      "destination": "/"
+    },
+    {
+      "source": "/register/",
+      "destination": "/"
+    }
+  ]
+}
