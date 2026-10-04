@@ -32,6 +32,11 @@ app.use((error, _request, response, next) => {
 
 const requiredFields = ['name', 'email', 'location'];
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const airtableFields = {
+  name: 'Name',
+  email: 'Email',
+  location: 'Location',
+};
 
 function escapeHtml(value) {
   return value.replace(/[&<>"']/g, (character) => (
@@ -44,6 +49,31 @@ function createResendClient() {
     throw new Error('Email service is not configured. Add RESEND_API_KEY to backend/.env.');
   }
   return new Resend(process.env.RESEND_API_KEY);
+}
+
+async function saveRegistrationToAirtable(values) {
+  const endpoint = `https://api.airtable.com/v0/${encodeURIComponent(process.env.AIRTABLE_BASE_ID)}/${encodeURIComponent(process.env.AIRTABLE_TABLE_NAME)}`;
+  const airtableResponse = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + process.env.AIRTABLE_TOKEN,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      records: [{
+        fields: {
+          [airtableFields.name]: values.name,
+          [airtableFields.email]: values.email,
+          [airtableFields.location]: values.location,
+        },
+      }],
+    }),
+  });
+
+  if (!airtableResponse.ok) {
+    const details = (await airtableResponse.text()).slice(0, 500);
+    throw new Error(`Airtable registration save failed (${airtableResponse.status}): ${details}`);
+  }
 }
 
 app.get('/api/health', (_request, response) => response.json({ status: 'ok' }));
@@ -59,26 +89,30 @@ app.post('/api/registrations', async (request, response) => {
   if (!emailPattern.test(values.email)) {
     return response.status(400).json({ message: 'Please provide a valid email address.' });
   }
-  if (!process.env.OWNER_EMAIL || !process.env.MAIL_FROM || !process.env.RESEND_API_KEY) {
-    return response.status(503).json({ message: 'Registration email service is unavailable.' });
+  if (
+    !process.env.OWNER_EMAIL ||
+    !process.env.MAIL_FROM ||
+    !process.env.RESEND_API_KEY ||
+    !process.env.AIRTABLE_TOKEN ||
+    !process.env.AIRTABLE_BASE_ID ||
+    !process.env.AIRTABLE_TABLE_NAME
+  ) {
+    return response.status(503).json({ message: 'Registration service is unavailable.' });
   }
 
   try {
     const resend = createResendClient();
     const firstName = values.name.split(/\s+/)[0];
     const htmlFirstName = escapeHtml(firstName);
-    const ownerEmail = await resend.emails.send({
+    const ownerEmailPromise = resend.emails.send({
       from: process.env.MAIL_FROM,
       to: process.env.OWNER_EMAIL,
       reply_to: values.email,
       subject: `New private list registration — ${values.name}`,
       text: `New registration\n\nName: ${values.name}\nEmail: ${values.email}\nLocation: ${values.location}`,
     });
-    if (ownerEmail.error) {
-      throw new Error(`Owner notification failed: ${ownerEmail.error.message}`);
-    }
 
-    const confirmationEmail = await resend.emails.send({
+    const confirmationEmailPromise = resend.emails.send({
       from: process.env.MAIL_FROM,
       to: values.email,
       subject: 'You’re on the list for the Bangkok Edition',
@@ -105,13 +139,21 @@ Artist, What Will She Inherit?`,
 <p>Until then, thank you for being part of <em>What Will She Inherit?</em> — and for following this journey from its early chapters.</p>
 <p>Warmly,<br><strong>Riya Saxena</strong><br>Artist, <em>What Will She Inherit?</em></p>`,
     });
+    const [, ownerEmail, confirmationEmail] = await Promise.all([
+      saveRegistrationToAirtable(values),
+      ownerEmailPromise,
+      confirmationEmailPromise,
+    ]);
+    if (ownerEmail.error) {
+      throw new Error(`Owner notification failed: ${ownerEmail.error.message}`);
+    }
     if (confirmationEmail.error) {
       throw new Error(`Registrant confirmation failed: ${confirmationEmail.error.message}`);
     }
 
     return response.status(201).json({ message: 'Registration received.' });
   } catch (error) {
-    console.error('Registration email delivery failed:', error);
+    console.error('Registration persistence or email delivery failed:', error);
     return response.status(502).json({ message: 'We could not send your registration. Please try again.' });
   }
 });

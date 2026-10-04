@@ -14,7 +14,7 @@ ignored in Git because it is generated during deployment.
 
 ## Run locally
 
-1. In `backend/`, copy `.env.example` to `.env` and set `RESEND_API_KEY`, `OWNER_EMAIL`, and `MAIL_FROM`. Verify the sender domain in Resend before sending production email.
+1. In `backend/`, copy `.env.example` to `.env` and set `RESEND_API_KEY`, `OWNER_EMAIL`, `MAIL_FROM`, `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID`, and `AIRTABLE_TABLE_NAME`. Create the Airtable table with exactly these three fields: `Name`, `Email`, and `Location`. Verify the sender domain in Resend before sending production email.
 2. Install and run the API:
    `cd backend && npm install && npm run dev`
 3. In a second terminal, install and run the frontend:
@@ -22,10 +22,11 @@ ignored in Git because it is generated during deployment.
 
 The landing page shows the themed registration invitation after three seconds. Its
 `Get first access` button and the `Collect` navigation link open the dedicated
-`/collect` page. A successful submission sends one email to `OWNER_EMAIL` and a
-confirmation email to the registrant. Both emails use `MAIL_FROM` as the sender;
-the registrant email comes from the submitted form and the owner email comes from
-`OWNER_EMAIL`.
+`/collect` page. A successful submission writes one record to Airtable and sends one email to
+`OWNER_EMAIL` plus a confirmation email to the registrant concurrently. The
+Airtable record contains only `Name`, `Email`, and `Location`. Both emails use
+`MAIL_FROM` as the sender; the registrant email comes from the submitted form
+and the owner email comes from `OWNER_EMAIL`.
 
 To share the registration form directly, use the deployed frontend's `/collect`
 route, for example `https://www.riyasaxena.com/collect`.
